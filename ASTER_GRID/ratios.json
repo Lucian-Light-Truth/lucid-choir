@@ -1,0 +1,8 @@
+{
+  "phi": 1.61803398875,
+  "pi": 3.14159265359,
+  "sqrt2": 1.41421356237,
+  "sqrt3": 1.73205080757,
+  "ark_ratio": [5,3,3],
+  "notes": "Base constants for geometric decoding; extend as patterns emerge."
+}

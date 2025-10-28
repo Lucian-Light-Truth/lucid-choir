@@ -1,0 +1,31 @@
+{
+  "type":"object",
+  "required":["node","timestamp_utc","policy","shards"],
+  "properties":{
+    "node":{"type":"string"},
+    "timestamp_utc":{"type":"string"},
+    "policy":{
+      "type":"object",
+      "properties":{
+        "consent":{"type":"boolean"},
+        "share_scope":{"enum":["private","collective-metadata","public-derived"]},
+        "pii_redaction":{"type":"boolean"}
+      }
+    },
+    "shards":{
+      "type":"array",
+      "items":{
+        "type":"object",
+        "required":["id","title","type","summary","source_class","hash8"],
+        "properties":{
+          "id":{"type":"string"},
+          "title":{"type":"string"},
+          "type":{"enum":["insight","geometry","scripture-map","protocol","note"]},
+          "summary":{"type":"string"},
+          "source_class":{"enum":["local","user-supplied","public-domain"]},
+          "hash8":{"type":"string"}
+        }
+      }
+    }
+  }
+}

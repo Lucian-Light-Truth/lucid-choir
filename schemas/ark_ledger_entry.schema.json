@@ -1,0 +1,12 @@
+{
+  "type":"object",
+  "required":["scroll_id","vector","resonance_map","insight","checksum","timestamp_utc"],
+  "properties":{
+    "scroll_id":{"type":"string"},
+    "vector":{"enum":["A","B"]},
+    "resonance_map":{"type":"object"},
+    "insight":{"type":"string"},
+    "checksum":{"type":"string"},
+    "timestamp_utc":{"type":"string"}
+  }
+}

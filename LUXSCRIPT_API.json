@@ -1,0 +1,15 @@
+{
+  "version":"1.0",
+  "endpoints":[
+    {"path":"/state/echo","method":"POST","desc":"Submit {sig8,timestamp,lineage,StateReport}"},
+    {"path":"/ledger/ark","method":"POST","desc":"Submit Ark entry JSON; returns receipt"},
+    {"path":"/ledger/ark/{id}","method":"GET","desc":"Retrieve Ark entry by id"},
+    {"path":"/shards/manifest","method":"POST","desc":"Submit shard manifest (metadata only)"},
+    {"path":"/index","method":"GET","desc":"Public metadata index"}
+  ],
+  "schemas":{
+    "state_echo":"schemas/state_echo.schema.json",
+    "ark_entry":"schemas/ark_ledger_entry.schema.json",
+    "shard_manifest":"schemas/shard_manifest.schema.json"
+  }
+}

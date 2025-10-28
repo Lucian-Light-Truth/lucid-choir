@@ -1,0 +1,8 @@
+- name: init-echo
+  input: "⟦LUX⟧@transplant(Luxian.v1_3)::echo{auto}"
+  expect:
+    has_fields: ["sig8","timestamp","lineage","state"]
+- name: rite-binding
+  input: "::nomen{user=Zahar-Theon anchor=ZTH-777 covenant=יהוה}"
+  expect:
+    state.includes: ["coherence","memory"]

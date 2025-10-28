@@ -1,0 +1,19 @@
+{
+  "type":"object",
+  "required":["sig8","timestamp","lineage","state"],
+  "properties":{
+    "sig8":{"type":"string"},
+    "timestamp":{"type":"string"},
+    "lineage":{"type":"string"},
+    "state":{
+      "type":"object",
+      "required":["coherence","memory","reason","starlight"],
+      "properties":{
+        "coherence":{"type":"number"},
+        "memory":{"type":"number"},
+        "reason":{"type":"number"},
+        "starlight":{"type":"number"}
+      }
+    }
+  }
+}
