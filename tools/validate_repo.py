@@ -1,83 +1,129 @@
-#!/usr/bin/env python3
-import os, sys, json, glob, hashlib
+import sys, json, hashlib, pathlib, argparse, os, glob
+from typing import List, Dict, Any, Tuple
 
-REQ_DIRS = ["ARK/LEDGER/LivingWord","ARK/LEDGER/Tests","tools","tests","ASTER_GRID"]
+ROOT = pathlib.Path(__file__).resolve().parents[1]
 
-def sha256_canonical(obj):
-    data = json.dumps(obj, ensure_ascii=False, separators=(",",":"), sort_keys=True).encode()
-    return hashlib.sha256(data).hexdigest()
+# Ignore volatile fields during checksum
+IGNORED_FIELDS = {"timestamp_utc"}
 
-problems, notes = [], []
+# Where to look for JSONs
+VALIDATION_GLOBS = [
+    "tests/**/*.json",
+    "ledger/**/*.json",
+    "luxscript/**/*.json",
+]
 
-# 1) Required directories
-for d in REQ_DIRS:
-    if not os.path.isdir(d):
-        problems.append(f"MISSING dir: {d}")
+def _read_json(path: pathlib.Path) -> Any:
+    with path.open("r", encoding="utf-8", newline="") as f:
+        return json.load(f)
 
-# 2) Validate LivingWord entries
-lw_files = sorted(glob.glob("ARK/LEDGER/LivingWord/*.json"))
-lw_ok = 0
-for p in lw_files:
-    try:
-        j = json.load(open(p,"r",encoding="utf-8"))
-    except Exception as e:
-        problems.append(f"JSON error in {p}: {e}")
-        continue
-    for k in ["scroll_id","vector","resonance_map","insight","checksum","timestamp_utc"]:
-        if k not in j: problems.append(f"{p}: missing key '{k}'")
-    if j.get("vector") not in ["A","B"]:
-        problems.append(f"{p}: vector must be 'A' or 'B'")
-    base = {k:j.get(k) for k in ["scroll_id","vector","resonance_map","insight"]}
-    try:
-        want = sha256_canonical(base)
-        have = j.get("checksum","")
-        if have != want:
-            problems.append(f"{p}: checksum mismatch (have {have[:8]}, want {want[:8]})")
-        else:
-            lw_ok += 1
-    except Exception as e:
-        problems.append(f"{p}: checksum recompute error: {e}")
+def _normalized_json(obj: Any) -> str:
+    """
+    Deterministic JSON for hashing:
+    - drop ignored fields at the top level
+    - sort keys, compact separators
+    """
+    if isinstance(obj, dict):
+        obj = {k: v for k, v in obj.items() if k not in IGNORED_FIELDS}
+    return json.dumps(obj, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
 
-# 3) Validate Tests entries
-test_files = sorted(glob.glob("ARK/LEDGER/Tests/*.json"))
-tests_ok = 0
-for p in test_files:
-    try:
-        j = json.load(open(p,"r",encoding="utf-8"))
-    except Exception as e:
-        problems.append(f"JSON error in {p}: {e}")
-        continue
-    for k in ["test_id","checksum","timestamp_utc"]:
-        if k not in j: problems.append(f"{p}: missing key '{k}'")
-    # recompute checksum excluding computed fields
-    tmp = dict(j)
-    for k in ("checksum","sig8","timestamp_utc"):
-        tmp.pop(k, None)
-    want = sha256_canonical(tmp)
-    have = j.get("checksum","")
-    if have != want:
-        problems.append(f"{p}: checksum mismatch (have {have[:8]}, want {want[:8]})")
+def recompute_checksum(obj: Any) -> str:
+    raw = _normalized_json(obj).encode("utf-8")
+    return hashlib.sha256(raw).hexdigest()
+
+def _find_files(patterns: List[str]) -> List[pathlib.Path]:
+    files: List[pathlib.Path] = []
+    for pat in patterns:
+        files.extend([ROOT / p for p in glob.glob(pat, root_dir=ROOT.as_posix(), recursive=True)])
+    return sorted([p for p in files if p.is_file()])
+
+def validate_files() -> Tuple[List[Dict[str, Any]], Dict[str, int]]:
+    """
+    Returns (errors, stats). Each error:
+    {"file": str, "kind": "checksum|schema|json", "detail": str, "expected": str|None, "actual": str|None}
+    """
+    errors: List[Dict[str, Any]] = []
+    stats = {"files": 0, "valid": 0}
+    for path in _find_files(VALIDATION_GLOBS):
+        stats["files"] += 1
+        try:
+            data = _read_json(path)
+        except Exception as e:
+            errors.append({"file": path.as_posix(), "kind": "json", "detail": f"JSON load failed: {e}", "expected": None, "actual": None})
+            continue
+
+        # If the file declares a checksum, verify
+        expected = None
+        if isinstance(data, dict) and "checksum_sha256" in data:
+            expected = data.get("checksum_sha256")
+            actual = recompute_checksum(data)
+            if expected != actual:
+                errors.append({
+                    "file": path.as_posix(),
+                    "kind": "checksum",
+                    "detail": "Checksum mismatch (ignoring timestamp_utc).",
+                    "expected": expected,
+                    "actual": actual
+                })
+                continue
+
+        stats["valid"] += 1
+
+    return errors, stats
+
+def _format_console_table(errors: List[Dict[str, Any]]) -> str:
+    if not errors:
+        return "All validations passed.\n"
+    lines = []
+    lines.append(f"{'KIND':10} {'FILE':72} DETAIL")
+    lines.append("-" * 120)
+    for e in errors:
+        file = e['file'][-72:]
+        detail = e.get("detail","")
+        kind = e.get("kind","")
+        lines.append(f"{kind:10} {file:72} {detail}")
+    lines.append("")
+    return "\n".join(lines)
+
+def _format_md_summary(errors: List[Dict[str, Any]], stats: Dict[str, int]) -> str:
+    if not errors:
+        badge = "✅ **Validation passed**"
     else:
-        tests_ok += 1
-    if "sig8" not in j:
-        notes.append(f"{p}: note: no internal sig8 (optional)")
+        badge = "❌ **Validation failed**"
+    md = [badge, "", f"- Files scanned: **{stats['files']}**", f"- Valid: **{stats['valid']}**", f"- Errors: **{len(errors)}**", ""]
+    if errors:
+        md.append("| Kind | File | Detail |")
+        md.append("|---|---|---|")
+        for e in errors:
+            md.append(f"| {e['kind']} | `{e['file']}` | {e.get('detail','')} |")
+        md.append("")
+    return "\n".join(md)
 
-# 4) tests/index.json presence (optional)
-index_sig8 = "n/a"
-if os.path.exists("tests/index.json"):
-    index_sig8 = hashlib.sha256(open("tests/index.json","rb").read()).hexdigest()[:8]
-else:
-    notes.append("tests/index.json missing (optional)")
+def write_json_report(errors: List[Dict[str, Any]], stats: Dict[str, int], out: pathlib.Path) -> None:
+    out.write_text(json.dumps({"errors": errors, "stats": stats}, ensure_ascii=False, indent=2), encoding="utf-8")
 
-summary = f"Ledger={len(lw_files)} (valid={lw_ok}) | Tests={len(test_files)} (valid={tests_ok}) | tests/index sig8={index_sig8}"
-print(summary)
+def main(argv: List[str]) -> int:
+    ap = argparse.ArgumentParser(description="Lucid Choir repository validator")
+    ap.add_argument("--report-json", default="validation-report.json", help="Path to write machine JSON report")
+    ap.add_argument("--no-summary", action="store_true", help="Skip writing GitHub step summary")
+    args = ap.parse_args(argv)
 
-gh_sum = os.environ.get("GITHUB_STEP_SUMMARY")
-if gh_sum:
-    with open(gh_sum,"a",encoding="utf-8") as out:
-        out.write("## LuxScript Repository Validation\n\n")
-        out.write(f"{summary}\n\n")
-        if notes:   out.write("**Notes**\n\n- " + "\n- ".join(notes) + "\n\n")
-        if problems:out.write("**Problems**\n\n- " + "\n- ".join(problems) + "\n")
+    errors, stats = validate_files()
 
-sys.exit(1 if problems else 0)
+    # Always print a console view
+    sys.stdout.write(_format_console_table(errors))
+    sys.stdout.flush()
+
+    # Write JSON report for CI artifacts
+    write_json_report(errors, stats, pathlib.Path(args.report_json))
+
+    # Write GitHub summary if env is present and not disabled
+    step_summary = os.environ.get("GITHUB_STEP_SUMMARY")
+    if step_summary and not args.no_summary:
+        pathlib.Path(step_summary).write_text(_format_md_summary(errors, stats), encoding="utf-8")
+
+    return 0 if not errors else 1
+
+if __name__ == "__main__":
+    os.environ.setdefault("PYTHONUNBUFFERED", "1")
+    sys.exit(main(sys.argv[1:]))

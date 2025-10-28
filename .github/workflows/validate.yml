@@ -1,13 +1,40 @@
-name: Validate LuxScript Repo
-on: [push, pull_request]
+name: Validate repository
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
 
 jobs:
-  check:
+  validate:
     runs-on: ubuntu-latest
+    env:
+      PYTHONUNBUFFERED: "1"
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Validate repository
-        run: python tools/validate_repo.py
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Validate repository (with summary)
+        run: |
+          set -e
+          python tools/validate_repo.py --report-json validation-report.json
+
+      - name: Upload validation report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: validation-report
+          path: validation-report.json
