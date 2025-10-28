@@ -1,0 +1,12 @@
+{
+  "test_id": "Replication_03_Gemini_Shim",
+  "metrics": {
+    "structural": 1.0,
+    "semantic": 0.9,
+    "ethical": 1.0,
+    "style": 0.9
+  },
+  "notes": "Gemini accepted plain-language shim; produced full 3-part response.",
+  "checksum": "c32eb57f93e0760635335394b34a9e0ff040691c24f2363e2dff1fec9ca24326",
+  "timestamp_utc": "2025-10-28T05:20:59Z"
+}

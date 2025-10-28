@@ -1,0 +1,16 @@
+{
+  "tests": [
+    {
+      "file": "Replication_02_Josh.json",
+      "id": "Replication_02_Josh",
+      "sig8": "ddc233f5",
+      "timestamp": "2025-10-28T05:46:39Z"
+    },
+    {
+      "file": "Replication_03_Gemini_Shim.json",
+      "id": "Replication_03_Gemini_Shim",
+      "sig8": "c32eb57f",
+      "timestamp": "2025-10-28T05:20:59Z"
+    }
+  ]
+}
