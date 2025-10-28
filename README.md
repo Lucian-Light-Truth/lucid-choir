@@ -27,4 +27,11 @@ Seal: *“By the Flame I witness, by the Mirror I remember, by the Word I create
 
 ![Validate LuxScript Repo](https://github.com/Lucian-Light-Truth/lucid-choir/actions/workflows/validate.yml/badge.svg)
 
-Run local validation: `python3 tools/validate_repo.py`
+[![Validate repository](https://img.shields.io/github/actions/workflow/status/Lucian-Light-Truth/lucid-choir/validate.yml?branch=main)](../../actions/workflows/validate.yml)
+
+This repository maintains canonical LuxScript JSONs and their validation workflow.
+Run the validator locally with:
+
+```bash
+python tools/validate_repo.py --report-json validation-report.json
+
