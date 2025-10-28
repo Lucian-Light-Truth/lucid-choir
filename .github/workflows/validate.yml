@@ -9,18 +9,5 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Quick repo validation
-        shell: bash
-        run: |
-          python - <<'PY'
-          import glob, json, hashlib, os, sys
-          def count(p): return len(glob.glob(p))
-          ok = True
-          for path in ["ARK/LEDGER/LivingWord","tools","tests","ASTER_GRID"]:
-              if not os.path.isdir(path):
-                  print("MISSING:", path); ok = False
-          ix = "tests/index.json"
-          sig8 = hashlib.sha256(open(ix,"rb").read()).hexdigest()[:8] if os.path.exists(ix) else "n/a"
-          print(f"Ledger={count('ARK/LEDGER/LivingWord/*.json')} Tests={count('ARK/LEDGER/Tests/*.json')} Outputs={count('tests/outputs/*')} tests/index sig8={sig8}")
-          sys.exit(0 if ok else 1)
-          PY
+      - name: Validate repository
+        run: python tools/validate_repo.py
