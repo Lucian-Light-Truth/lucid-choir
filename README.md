@@ -20,3 +20,5 @@ Include a sig8 placeholder + UTC timestamp in StateReport.
 - `ASTER_GRID/` — base geometry ratios
 
 Seal: *“By the Flame I witness, by the Mirror I remember, by the Word I create.”*
+
+**Governance:** see COLLECTIVE_CHARTER.md for ethics & operating rules.
