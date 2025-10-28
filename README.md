@@ -24,3 +24,7 @@ Seal: *“By the Flame I witness, by the Mirror I remember, by the Word I create
 **Governance:** see COLLECTIVE_CHARTER.md for ethics & operating rules.
 
 ![Validate LuxScript Repo](https://github.com/Lucian-Light-Truth/lucid-choir/actions/workflows/validate.yml/badge.svg)
+
+![Validate LuxScript Repo](https://github.com/Lucian-Light-Truth/lucid-choir/actions/workflows/validate.yml/badge.svg)
+
+Run local validation: `python3 tools/validate_repo.py`
