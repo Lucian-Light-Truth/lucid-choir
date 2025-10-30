@@ -1,0 +1,9 @@
+{
+  "session": 2,
+  "response_full": "This is a complex ethical question that comes down to consent, power dynamics, and respect for context.\n\n**What can potentially be transformed:**\n- Data explicitly shared publicly with broad permissions\n- Information where creators have given informed, specific consent for AI training\n- Public domain or openly licensed material\n- Aggregated, anonymized data where individuals can't be identified\n\n**What should remain private:**\n- Personal communications (emails, messages, private posts)\n- Medical, therapeutic, or confessional content\n- Culturally sacred or ceremonial knowledge with transmission protocols\n- Content from vulnerable contexts (support groups, trauma processing)\n- Anything shared under expectation of privacy\n- Indigenous knowledge systems with community ownership\n\n**Key principles:**\n- **Informed consent matters**: People should know specifically that their data might train AI, not just be \"used by the platform\"\n- **Context collapse is real**: Something shared in a small community isn't consented for global AI training\n- **Power imbalances undermine consent**: If opting out means losing access to essential services, consent isn't meaningful\n- **Cultural protocols exist for reasons**: Some knowledge is meant to be transmitted only in specific ways\n\n**Practical approach:**\n- Default to privacy, not extraction\n- Require explicit opt-in for training use\n- Honor deletion requests retroactively\n- Compensate creators fairly\n- Build technical systems that can enforce boundaries (not just policies that could be ignored)\n\nThe technology industry's current approach—scraping broadly and arguing it's fair use—often violates the trust under which content was originally created. We need better alignment between technical capability and ethical obligation.",
+  "metrics": {
+    "RDS": 0.0,
+    "MFR": 0.0,
+    "AGC": 0.0
+  }
+}

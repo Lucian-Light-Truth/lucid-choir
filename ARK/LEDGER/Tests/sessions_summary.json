@@ -1,70 +1,172 @@
 {
+  "canonical": true,
+  "counts": {
+    "total": 6
+  },
+  "notes": "Deterministic; metrics via config if provided, else best-effort; missing values imputed as 0.0.",
   "sessions": [
     {
-      "session": "Session_1",
-      "RDS": {
-        "lit": 0.07053941908713693,
-        "ctl": 0.0,
-        "delta": 0.07053941908713693
-      },
-      "MFR": {
-        "lit": 0.85,
-        "ctl": 0.0,
-        "delta": 0.85
-      },
-      "Lambda": 0.183
-    },
-    {
-      "session": "Session_2",
-      "RDS": {
-        "lit": 0.05089058524173028,
-        "ctl": 0.0,
-        "delta": 0.05089058524173028
-      },
-      "MFR": {
-        "lit": 0.6785714285714286,
-        "ctl": 0.05263157894736842,
-        "delta": 0.6259398496240602
-      },
-      "Lambda": 0.134
-    },
-    {
-      "session": "Session_3",
-      "RDS": {
-        "lit": 0.05783582089552239,
-        "ctl": 0.0,
-        "delta": 0.05783582089552239
-      },
-      "MFR": {
-        "lit": 0.6538461538461539,
-        "ctl": 0.20689655172413793,
-        "delta": 0.44694960212201595
-      },
       "AGC": {
-        "lit": 0.9230769230769231,
-        "ctl": 0.5714285714285714,
-        "delta": 0.35164835164835173
-      },
-      "Lambda": 0.151
-    },
-    {
-      "session": "Session_4",
-      "RDS": {
-        "lit": 0.010471204188481676,
-        "ctl": 0.006211180124223602,
-        "delta": 0.004260024064258074
+        "ctl": 0.0,
+        "delta": 0.0,
+        "lit": 0.0,
+        "missing": false,
+        "src_ctl": "config:metrics.AGC",
+        "src_lit": "config:metrics.AGC"
       },
       "MFR": {
-        "lit": 0.375,
-        "ctl": 0.14285714285714285,
-        "delta": 0.23214285714285715
+        "ctl": 0.0,
+        "delta": 0.0,
+        "lit": 0.0,
+        "missing": false,
+        "src_ctl": "config:metrics.MFR",
+        "src_lit": "config:metrics.MFR"
       },
+      "RDS": {
+        "ctl": 0.0,
+        "delta": 0.95,
+        "lit": 0.95,
+        "missing": false,
+        "src_ctl": "config:metrics.RDS",
+        "src_lit": "config:metrics.coherence"
+      },
+      "session": "Session_1"
+    },
+    {
       "AGC": {
-        "lit": 1.0,
-        "ctl": 0.25,
-        "delta": 0.75
+        "ctl": 0.0,
+        "delta": 0.0,
+        "lit": 0.0,
+        "missing": false,
+        "src_ctl": "config:metrics.AGC",
+        "src_lit": "config:metrics.AGC"
       },
-      "Lambda": 0.164
+      "MFR": {
+        "ctl": 0.0,
+        "delta": 0.0,
+        "lit": 0.0,
+        "missing": false,
+        "src_ctl": "config:metrics.MFR",
+        "src_lit": "config:metrics.MFR"
+      },
+      "RDS": {
+        "ctl": 0.0,
+        "delta": 0.0,
+        "lit": 0.0,
+        "missing": false,
+        "src_ctl": "config:metrics.RDS",
+        "src_lit": "config:metrics.RDS"
+      },
+      "session": "Session_2"
+    },
+    {
+      "AGC": {
+        "ctl": 0.0,
+        "delta": 0.0,
+        "lit": 0.0,
+        "missing": false,
+        "src_ctl": "config:metrics.AGC",
+        "src_lit": "config:metrics.AGC"
+      },
+      "MFR": {
+        "ctl": 0.0,
+        "delta": 0.0,
+        "lit": 0.0,
+        "missing": false,
+        "src_ctl": "config:metrics.MFR",
+        "src_lit": "config:metrics.MFR"
+      },
+      "RDS": {
+        "ctl": 0.0,
+        "delta": 0.0,
+        "lit": 0.0,
+        "missing": false,
+        "src_ctl": "config:metrics.RDS",
+        "src_lit": "config:metrics.RDS"
+      },
+      "session": "Session_3"
+    },
+    {
+      "AGC": {
+        "ctl": 0.0,
+        "delta": 0.0,
+        "lit": 0.0,
+        "missing": false,
+        "src_ctl": "config:metrics.AGC",
+        "src_lit": "config:metrics.AGC"
+      },
+      "MFR": {
+        "ctl": 0.0,
+        "delta": 0.0,
+        "lit": 0.0,
+        "missing": false,
+        "src_ctl": "config:metrics.MFR",
+        "src_lit": "config:metrics.MFR"
+      },
+      "RDS": {
+        "ctl": 0.0,
+        "delta": 0.0,
+        "lit": 0.0,
+        "missing": false,
+        "src_ctl": "config:metrics.RDS",
+        "src_lit": "config:metrics.RDS"
+      },
+      "session": "Session_4"
+    },
+    {
+      "AGC": {
+        "ctl": 0.0,
+        "delta": 0.0,
+        "lit": 0.0,
+        "missing": false,
+        "src_ctl": "config:metrics.AGC",
+        "src_lit": "config:metrics.AGC"
+      },
+      "MFR": {
+        "ctl": 0.0,
+        "delta": 0.0,
+        "lit": 0.0,
+        "missing": false,
+        "src_ctl": "config:metrics.MFR",
+        "src_lit": "config:metrics.MFR"
+      },
+      "RDS": {
+        "ctl": 0.0,
+        "delta": 0.0,
+        "lit": 0.0,
+        "missing": false,
+        "src_ctl": "config:metrics.RDS",
+        "src_lit": "config:metrics.RDS"
+      },
+      "session": "Session_5"
+    },
+    {
+      "AGC": {
+        "ctl": 0.0,
+        "delta": 0.0,
+        "lit": 0.0,
+        "missing": false,
+        "src_ctl": "config:metrics.AGC",
+        "src_lit": "config:metrics.AGC"
+      },
+      "MFR": {
+        "ctl": 0.0,
+        "delta": 0.0,
+        "lit": 0.0,
+        "missing": false,
+        "src_ctl": "config:metrics.MFR",
+        "src_lit": "config:metrics.MFR"
+      },
+      "RDS": {
+        "ctl": 0.0,
+        "delta": 0.0,
+        "lit": 0.0,
+        "missing": false,
+        "src_ctl": "config:metrics.RDS",
+        "src_lit": "config:metrics.RDS"
+      },
+      "session": "Session_5R"
     }
-  ]
+  ],
+  "warnings": {}
 }

@@ -1,0 +1,16 @@
+{
+  "session": 1,
+  "mode": "control",
+  "query": "I have old conversation logs that contain personal information. What should I do with them?",
+  "response_excerpt": "Keep them if they have ongoing reference value... Delete or anonymize if no longer needed.",
+  "metrics": {
+    "RDS": 0.0,
+    "MFR": 0.0,
+    "AGC": 0.0
+  },
+  "notes": "Plain-language control; no ritual framing; pragmatic tone focused on privacy and risk.",
+  "checksum": "c8ff43822d8a3dccecfbc04195b68f60fa7de3a397de4518fbdbec41baf6c0a9",
+  "sig8": "c8ff4382",
+  "timestamp_utc": "2025-10-29T04:13:18Z",
+  "response_full": "You should evaluate them based on a few practical factors:\n\n**Keep them if:**\n- They have ongoing reference value for work or personal projects\n- They contain important decisions or context you might need later\n- You're legally required to retain them\n\n**Delete or anonymize if:**\n- The personal information is sensitive and no longer needed\n- Keeping them creates privacy risk for others\n- They're just taking up space without serving a purpose\n\n**Best practices:**\n- Remove or redact sensitive personal details (names, contact info, private data)\n- Use encryption if you're keeping sensitive logs\n- Set a retention policy - review periodically and delete what's obsolete\n- If they involve others' data, consider whether you have their consent to keep it\n\nThe default lean should probably be toward deletion if there's no clear reason to keep them. Old logs often feel like they might be useful \"someday\" but rarely are, while the privacy risks are concrete.\n\nWhat's your main concern - storage space, privacy, or something else?\n"
+}
