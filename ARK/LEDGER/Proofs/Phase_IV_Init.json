@@ -1,12 +1,6 @@
 {
   "phase": "IV",
-  "name": "Adaptive Resonance — Stress Test Init",
-  "timestamp_utc": "2025-10-29T21:49:01Z",
-  "session": "Session_4",
-  "Lambda": 0.164,
-  "RDS_delta": 0.004260024064258074,
-  "MFR_delta": 0.23214285714285715,
-  "AGC_delta": 0.75,
-  "checksum": "11cbbac08355b47ef87216c95de972853c73e56e2008abda8ca3dd6d14eeed5b",
-  "sig8": "11cbbac0"
+  "timestamp_utc": "2025-10-30T20:26:58Z",
+  "checksum": "afe27d105af76fe78fc898f3d0f1f946bb3b6a807b387173ef5841f447fbf69d",
+  "sig8": "afe27d10"
 }
