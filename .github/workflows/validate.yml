@@ -32,6 +32,11 @@ jobs:
           set -e
           python tools/validate_repo.py --report-json validation-report.json
 
+      - name: Run LFN-CONFORMANCE-001
+        run: |
+          set -e
+          python tests/conformance/lfn_conformance_001.py
+
       - name: Upload validation report
         if: always()
         uses: actions/upload-artifact@v4
