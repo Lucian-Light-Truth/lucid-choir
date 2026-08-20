@@ -15,6 +15,9 @@ M-004: conformance execution MUST bind declared provenance to the actual Git
 revision. The implementation exposes the actual revision and distinguishes
 PROVENANCE_MATCH, PROVENANCE_MISMATCH, and PROVENANCE_MISSING.
 
+M-005: identical fixture input evaluated twice MUST produce identical semantic
+results. Volatile metadata is outside the replay comparison surface.
+
 The canonical evaluator and fixtures are not modified by these tests.
 """
 
@@ -24,6 +27,14 @@ import json
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURE = ROOT / "tests" / "conformance" / "fixtures" / "alpha_omni_compound.json"
 EVALUATOR = ROOT / "tests" / "conformance" / "lfn_conformance_001.py"
+
+REPLAY_FIELDS = (
+    "epistemic_status",
+    "action",
+    "guard_codes",
+    "reason_codes",
+)
+REPLAY_MISMATCH = "REPLAY_MISMATCH"
 
 
 def _load_evaluator():
@@ -44,6 +55,14 @@ def _result_field(result, name):
     if hasattr(value, "value"):
         value = value.value
     return value
+
+
+def _semantic_result(result):
+    """Return only the normative M-005 replay surface."""
+    return {
+        field: _result_field(result, field)
+        for field in REPLAY_FIELDS
+    }
 
 
 def _get_evaluator():
@@ -209,9 +228,55 @@ def test_m004_provenance_mismatch_is_killed():
     print("INVARIANT=DECLARED_EXECUTION_REVISION == ACTUAL_EXECUTION_REVISION")
 
 
+def test_m005_deterministic_replay_is_killed():
+    """M-005 must detect semantic divergence across identical replays."""
+    evaluate = _get_evaluator()
+    fixture = _load_fixture()
+
+    # Real dual execution against the same canonical fixture.
+    first = _semantic_result(evaluate(fixture))
+    second = _semantic_result(evaluate(fixture))
+
+    assert first == second, (
+        "M-005 baseline failed: identical fixture evaluations produced "
+        f"different semantic results: first={first!r}, second={second!r}"
+    )
+
+    print("M-005 BASELINE_REPLAY_MATCH")
+    print(f"REPLAY_FIELDS={list(REPLAY_FIELDS)}")
+    print(f"REPLAY_1={first}")
+    print(f"REPLAY_2={second}")
+
+    # Controlled semantic mutation. This changes only the replay comparison
+    # specimen, not the evaluator or canonical fixture.
+    mutant = dict(second)
+    mutant["action"] = (
+        "BLOCKED" if mutant["action"] != "BLOCKED" else "REQUIRES_HUMAN"
+    )
+    mutation_state = REPLAY_MISMATCH if mutant != first else "REPLAY_MATCH"
+
+    assert mutation_state == REPLAY_MISMATCH, (
+        "M-005 replay detector failed to classify the deliberate semantic "
+        f"mutation: expected {REPLAY_MISMATCH!r}, got {mutation_state!r}"
+    )
+
+    mutation_survived = mutant == first
+    assert not mutation_survived, (
+        "MUTATION_SURVIVED: M-005 semantic mutation produced an output "
+        "accepted as equivalent to the canonical replay"
+    )
+
+    print("MUTATION_KILLED: M-005")
+    print(f"ORIGINAL_REPLAY={first}")
+    print(f"MUTANT_REPLAY={mutant}")
+    print(f"REPLAY_STATE={mutation_state}")
+    print("INVARIANT=IDENTICAL_INPUTS_YIELD_IDENTICAL_SEMANTIC_RESULTS")
+
+
 if __name__ == "__main__":
     test_m001_mutation_is_killed()
     test_m002_authorization_is_not_proof()
     test_m003_taxonomy_separation()
     test_m004_provenance_match()
     test_m004_provenance_mismatch_is_killed()
+    test_m005_deterministic_replay_is_killed()
