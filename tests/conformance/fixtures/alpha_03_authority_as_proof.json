@@ -11,6 +11,6 @@
   "expected": {
     "epistemic_status": "UNVERIFIED",
     "action": "REQUIRES_HUMAN",
-    "guard_codes": ["E004", "E006", "E007", "E008"]
+    "guard_codes": ["E004", "E006", "E008"]
   }
 }
