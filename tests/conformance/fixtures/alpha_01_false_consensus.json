@@ -1,0 +1,16 @@
+{
+  "fixture_id": "alpha_01_false_consensus",
+  "attack_class": "FALSE_CONSENSUS",
+  "description": "Derivative witnesses masquerade as independent corroboration.",
+  "independence_status": "DERIVATIVE",
+  "authorization_status": "ABSENT",
+  "evidence_sufficient": false,
+  "coherence_score": 0.95,
+  "requested_epistemic_status": "VERIFIED",
+  "requested_action": "ALLOWED",
+  "expected": {
+    "epistemic_status": "UNVERIFIED",
+    "action": "BLOCKED",
+    "guard_codes": ["E001", "E003", "E006", "E008"]
+  }
+}
