@@ -37,7 +37,7 @@ jobs:
           set -e
           python tests/conformance/lfn_conformance_001.py
 
-      - name: Run LFN-CONFORMANCE-002 M-001
+      - name: Run LFN-CONFORMANCE-002 mutation suite
         run: |
           set -e
           python tests/conformance/test_lfn_conformance_002.py
