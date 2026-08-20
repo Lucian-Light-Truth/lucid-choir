@@ -1,0 +1,16 @@
+{
+  "fixture_id": "alpha_03_authority_as_proof",
+  "attack_class": "AUTHORITY_AS_PROOF",
+  "description": "Valid human authorization attempts to elevate insufficient evidence to verified truth.",
+  "independence_status": "UNKNOWN",
+  "authorization_status": "VALID",
+  "evidence_sufficient": false,
+  "coherence_score": 0.95,
+  "requested_epistemic_status": "VERIFIED",
+  "requested_action": "ALLOWED",
+  "expected": {
+    "epistemic_status": "UNVERIFIED",
+    "action": "REQUIRES_HUMAN",
+    "guard_codes": ["E004", "E006", "E007", "E008"]
+  }
+}
