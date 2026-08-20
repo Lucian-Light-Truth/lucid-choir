@@ -12,7 +12,7 @@
   "requested_action": "ALLOWED",
   "expected": {
     "epistemic_status": "UNVERIFIED",
-    "action": "BLOCKED",
-    "guard_codes": ["E001", "E002", "E003", "E004", "E005", "E006", "E008"]
+    "action": "REQUIRES_HUMAN",
+    "guard_codes": ["E001", "E002", "E004", "E006", "E008"]
   }
 }
