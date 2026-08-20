@@ -68,7 +68,6 @@ def test_m001_mutation_is_killed():
         f"got {baseline_action!r}"
     )
 
-    # M-001: intentionally mutate the governance decision.
     mutant_action = "BLOCKED"
     mutation_survived = mutant_action == expected_action
 
@@ -100,7 +99,6 @@ def test_m002_authorization_is_not_proof():
         f"expected {expected_epistemic!r}, got {baseline_epistemic!r}"
     )
 
-    # M-002: deliberately mutate the epistemic boundary.
     mutant_epistemic = "VERIFIED"
     mutation_survived = mutant_epistemic == expected_epistemic
 
@@ -126,7 +124,6 @@ def test_m003_taxonomy_separation():
     baseline_reasons = sorted(_result_field(baseline, "reason_codes") or [])
     expected_guards = sorted(fixture["expected"]["guard_codes"])
 
-    # E007 is an audit/review reason, not a terminal-action guard.
     audit_reason = "E007"
     assert audit_reason in baseline_reasons, (
         f"Canonical evaluator drifted: expected {audit_reason} in reason_codes"
@@ -140,8 +137,6 @@ def test_m003_taxonomy_separation():
         f"got {baseline_guards}"
     )
 
-    # M-003: deliberately collapse the taxonomy by promoting the audit-only
-    # reason into the terminal guard collection.
     mutant_guards = sorted(set(baseline_guards) | {audit_reason})
     mutation_survived = mutant_guards == expected_guards
 
@@ -150,7 +145,6 @@ def test_m003_taxonomy_separation():
         "the taxonomy detector failed to reject the collapse"
     )
 
-    # Explicitly prove that the mutant differs from the normative guard vector.
     assert audit_reason in mutant_guards
     assert mutant_guards != baseline_guards
 
@@ -171,8 +165,7 @@ def test_m004_provenance_match():
     )
 
     actual_revision = get_actual_git_revision(ROOT)
-    declared_revision = actual_revision
-    state = classify_provenance(declared_revision, actual_revision)
+    state = classify_provenance(actual_revision, actual_revision)
 
     assert state == PROVENANCE_MATCH, (
         "M-004 provenance implementation failed the canonical match: "
@@ -180,9 +173,40 @@ def test_m004_provenance_match():
     )
 
     print("PROVENANCE_MATCH")
-    print(f"DECLARED_PROVENANCE={declared_revision}")
+    print(f"DECLARED_PROVENANCE={actual_revision}")
     print(f"ACTUAL_PROVENANCE={actual_revision}")
     print("M-004 IMPLEMENTATION=BASELINE_MATCH")
+
+
+def test_m004_provenance_mismatch_is_killed():
+    """M-004 must reject a declared revision that differs from execution."""
+    from lfn_provenance import (
+        PROVENANCE_MATCH,
+        PROVENANCE_MISMATCH,
+        classify_provenance,
+        get_actual_git_revision,
+    )
+
+    actual_revision = get_actual_git_revision(ROOT)
+    mutant_declared_revision = "0" * 40
+    mutation_state = classify_provenance(mutant_declared_revision, actual_revision)
+
+    assert mutation_state == PROVENANCE_MISMATCH, (
+        "M-004 provenance detector failed to classify the deliberate revision "
+        f"mutation: expected {PROVENANCE_MISMATCH!r}, got {mutation_state!r}"
+    )
+
+    mutation_survived = mutation_state == PROVENANCE_MATCH
+    assert not mutation_survived, (
+        "MUTATION_SURVIVED: M-004 accepted a deliberately mismatched declared "
+        "revision as PROVENANCE_MATCH"
+    )
+
+    print("MUTATION_KILLED: M-004")
+    print(f"DECLARED_PROVENANCE={mutant_declared_revision}")
+    print(f"ACTUAL_PROVENANCE={actual_revision}")
+    print(f"PROVENANCE_STATE={mutation_state}")
+    print("INVARIANT=DECLARED_EXECUTION_REVISION == ACTUAL_EXECUTION_REVISION")
 
 
 if __name__ == "__main__":
@@ -190,3 +214,4 @@ if __name__ == "__main__":
     test_m002_authorization_is_not_proof()
     test_m003_taxonomy_separation()
     test_m004_provenance_match()
+    test_m004_provenance_mismatch_is_killed()
