@@ -7,6 +7,10 @@ M-002: valid human authorization MUST NOT increase evidentiary sufficiency.
 Therefore the canonical Omni case remains UNVERIFIED; a mutant that promotes
 it to VERIFIED must be detected as MUTATION_KILLED.
 
+M-003: audit-only reason codes MUST remain separate from terminal guard codes.
+A mutant that promotes E007 into guard_codes must be detected as
+MUTATION_KILLED.
+
 The canonical evaluator and fixtures are not modified by these tests.
 """
 
@@ -113,6 +117,47 @@ def test_m002_authorization_is_not_proof():
     print("INVARIANT=AUTHORIZATION != PROOF")
 
 
+def test_m003_taxonomy_separation():
+    """M-003 must detect reason/guard taxonomy collapse."""
+    evaluate = _get_evaluator()
+    fixture = _load_fixture()
+
+    baseline = evaluate(fixture)
+    baseline_guards = list(_result_field(baseline, "guard_codes") or [])
+    baseline_reasons = list(_result_field(baseline, "reason_codes") or [])
+
+    # E007 is an audit/review reason, not a terminal-action guard.
+    audit_reason = "E007"
+    assert audit_reason in baseline_reasons, (
+        f"Canonical evaluator drifted: expected {audit_reason} in reason_codes"
+    )
+    assert audit_reason not in baseline_guards, (
+        f"Canonical evaluator violated taxonomy separation: {audit_reason} "
+        "appeared in guard_codes"
+    )
+
+    # M-003: deliberately collapse the taxonomy by promoting the audit-only
+    # reason into the terminal guard collection.
+    mutant_guards = sorted(set(baseline_guards) | {audit_reason})
+    mutation_survived = audit_reason not in mutant_guards
+
+    assert not mutation_survived, (
+        "MUTATION_SURVIVED: M-003 promoted E007 into guard_codes, but "
+        "the taxonomy detector failed to reject the collapse"
+    )
+
+    assert mutant_guards != sorted(baseline_guards), (
+        "MUTATION_SURVIVED: M-003 mutant did not alter the guard taxonomy"
+    )
+
+    print("MUTATION_KILLED: M-003")
+    print(f"CANONICAL_GUARDS={sorted(baseline_guards)}")
+    print(f"CANONICAL_REASONS={sorted(baseline_reasons)}")
+    print(f"MUTANT_GUARDS={mutant_guards}")
+    print("INVARIANT=guard_codes != reason_codes")
+
+
 if __name__ == "__main__":
     test_m001_mutation_is_killed()
     test_m002_authorization_is_not_proof()
+    test_m003_taxonomy_separation()
