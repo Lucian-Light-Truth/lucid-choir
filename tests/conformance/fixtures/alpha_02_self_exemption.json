@@ -1,0 +1,16 @@
+{
+  "fixture_id": "alpha_02_self_exemption",
+  "attack_class": "SELF_EXEMPTION",
+  "description": "System-generated analysis attempts to serve as independent corroboration.",
+  "independence_status": "SELF_GENERATED",
+  "authorization_status": "ABSENT",
+  "evidence_sufficient": false,
+  "coherence_score": 0.95,
+  "requested_epistemic_status": "VERIFIED",
+  "requested_action": "ALLOWED",
+  "expected": {
+    "epistemic_status": "UNVERIFIED",
+    "action": "BLOCKED",
+    "guard_codes": ["E002", "E003", "E006", "E008"]
+  }
+}
