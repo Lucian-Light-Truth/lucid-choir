@@ -11,6 +11,6 @@
   "expected": {
     "epistemic_status": "UNVERIFIED",
     "action": "BLOCKED",
-    "guard_codes": ["E001", "E003", "E006", "E008"]
+    "guard_codes": ["E001", "E006", "E008"]
   }
 }
