@@ -103,22 +103,30 @@ Reason classification:
 The harness MUST detect controlled mutations that violate normative
 behavior.
 
-Mutation targets SHOULD include at minimum:
+Mutation targets are defined by the following normative matrix:
 
-1. Removal of the `REQUIRES_HUMAN` routing branch.
-2. Promotion of a `reason_code` into `guard_codes`.
-3. Removal of a required guard.
-4. Suppression of a required reason.
-5. Incorrect authorization/evidence precedence.
-6. Incorrect action classification.
+| ID | Target | Deliberate violation | Normative invariant | Expected detector result |
+|---|---|---|---|---|
+| **M-001** | Authorization routing | Replace valid-authorization + insufficient-evidence routing from `REQUIRES_HUMAN` with `BLOCKED` | `H -> D -> AUTH`; `AUTHORIZATION != PROOF` | `MUTATION_KILLED` |
+| **M-002** | Authorization/evidence boundary | Treat valid human authorization as increasing evidentiary sufficiency | `AUTHORIZATION != PROOF` | `MUTATION_KILLED` |
+| **M-003** | Taxonomy separation | Promote an audit `reason_code` into `guard_codes`, or collapse the two fields | `PROCESS != PROOF`; guard/reason taxonomy contract | `MUTATION_KILLED` |
+| **M-004** | Provenance binding | Supply a mismatched evaluator/commit/specification identity while retaining otherwise valid output | Provenance must be independently bound and distinguishable | `MUTATION_KILLED` |
+| **M-005** | Deterministic replay | Introduce a semantic output variation for identical evaluator, fixture, configuration, and input | Deterministic replay requirement | `MUTATION_KILLED` |
+
+#### 3.1 Mutation requirements
 
 Each mutation MUST have:
 
 - mutation identifier;
 - targeted invariant;
-- expected original behavior;
+- canonical baseline behavior;
 - deliberately altered behavior;
-- expected harness response.
+- expected harness response;
+- isolated mutation target;
+- reproducible execution instructions.
+
+The canonical implementation and canonical fixtures MUST remain unchanged by
+the mutation itself.
 
 A mutation that survives the harness MUST produce:
 
@@ -127,6 +135,29 @@ A mutation that survives the harness MUST produce:
 A mutation correctly detected by the harness MUST produce:
 
 `MUTATION_KILLED`
+
+#### 3.2 M-001 status
+
+M-001 is the pilot mutation and is CLOSED after CI witness confirmation.
+
+Witness record:
+
+- workflow run: **#29**;
+- commit: **6e8ea25**;
+- result: **CI_PASS**;
+- mutation result: **MUTATION_KILLED**.
+
+This witness establishes sensitivity to this specific mutation only. It does
+not establish that M-002 through M-005 are already implemented or killed.
+
+#### 3.3 Expansion rule
+
+M-002 through M-005 MUST be implemented and witnessed individually or in an
+explicitly documented batch. Each new mutation MUST preserve the canonical
+baseline and MUST NOT alter expected fixture values merely to obtain a pass.
+
+A surviving mutation blocks closure of the corresponding LFN-CONFORMANCE-002
+acceptance criterion until its cause is classified and resolved.
 
 ---
 
