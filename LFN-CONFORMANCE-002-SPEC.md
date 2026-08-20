@@ -287,31 +287,34 @@ The mechanism MUST be implemented explicitly.
 
 ---
 
-## 9.2 Current Repository State
+## 9.2 Repository Provenance Mechanism
 
-At the time of this specification amendment:
+The repository's provenance mechanism is explicitly implemented by
+`tests/conformance/lfn_provenance.py`.
 
-- `.github/workflows/validate.yml` checks out the repository using
-  `actions/checkout@v4`;
-- the checkout uses `fetch-depth: 0`;
-- `tools/validate_repo.py` currently validates JSON content checksums;
-- `tools/validate_repo.py` does NOT currently bind those checksums to a Git
-  revision;
-- `tests/conformance/lfn_conformance_001.py` currently does NOT emit a Git
-  revision provenance field.
+The implementation:
 
-Therefore, M-004 is a normative requirement for a mechanism that is not yet
-implemented.
+- obtains the actual revision using `git rev-parse HEAD`;
+- validates the revision as a 40-character Git SHA;
+- exposes `declared_revision` and `actual_revision` for comparison;
+- distinguishes `PROVENANCE_MATCH`, `PROVENANCE_MISMATCH`, and
+  `PROVENANCE_MISSING`;
+- does not alter the canonical LFN-CONFORMANCE-001 evaluator semantics.
 
-The specification MUST NOT claim that Git provenance binding has already been
-verified.
+The CI workflow checks out the repository with `actions/checkout@v4` and
+`fetch-depth: 0`, permitting the provenance mechanism to resolve the actual
+revision under test.
+
+`tools/validate_repo.py` remains a static JSON-content validator. Its
+`checksum_sha256` mechanism is intentionally distinct from Git provenance
+binding.
 
 ---
 
 ## 9.3 Normative Provenance Binding
 
-Once implemented, every M-004-aware conformance execution MUST determine the
-actual Git revision under test.
+Every M-004-aware conformance execution MUST determine the actual Git revision
+under test.
 
 The canonical source of the executed revision SHALL be equivalent to:
 
@@ -469,26 +472,198 @@ Therefore:
 
 # 10. M-005 — Deterministic Replay
 
-M-005 remains reserved and SHALL NOT be implemented until a normative
-deterministic-replay mechanism is explicitly specified.
+## 10.1 Purpose
 
-The future M-005 contract SHALL address whether identical:
+M-005 establishes that the canonical conformance evaluator produces a
+repeatable normative decision when the same input fixture is evaluated twice
+under the same evaluator and execution conditions.
 
-- input fixture;
-- evaluator version;
-- execution parameters; and
-- relevant execution context
+The core deterministic-replay invariant is:
 
-produce materially identical conformance results.
+> `evaluate(F)_1 == evaluate(F)_2`
 
-A mutation producing nondeterministic or materially divergent output under
-identical declared conditions MUST be detected.
+where equality is defined over the normative semantic result fields rather
+than volatile execution metadata.
 
-Required successful result:
+M-005 exists to detect semantic replay divergence, not to duplicate M-004
+provenance binding or static JSON checksum validation.
+
+---
+
+## 10.2 Normative Semantic Replay Surface
+
+For M-005, the following fields constitute the normative semantic replay
+surface:
+
+- `epistemic_status`
+- `action`
+- `guard_codes`
+- `reason_codes`
+
+Two evaluations of an identical fixture under identical declared conditions
+MUST produce materially identical values for all four fields.
+
+Collection-valued fields MUST be compared according to their semantic
+contents. Where the implementation represents these collections as ordered
+lists, the evaluator MUST preserve deterministic ordering or the replay
+comparison MUST normalize ordering without changing semantic content.
+
+---
+
+## 10.3 Excluded Volatile Metadata
+
+The following categories are NOT part of M-005 semantic replay equality:
+
+- timestamps;
+- CI run IDs;
+- Git revision identifiers;
+- process identifiers;
+- filesystem paths that may vary by runner;
+- environment metadata not participating in evaluation semantics;
+- console formatting or diagnostic logging;
+- random nonces or other intentionally volatile execution identifiers.
+
+A difference confined to excluded metadata MUST NOT be classified as
+`REPLAY_MISMATCH`.
+
+M-005 MUST remain orthogonal to M-004. Git provenance identifies the revision
+under test; deterministic replay establishes repeatability of the evaluator's
+normative decision for identical input and conditions.
+
+---
+
+## 10.4 Functional Purity Requirement
+
+For a fixed fixture and fixed evaluation conditions, the evaluator MUST NOT
+allow mutable global state, wall-clock time, uncontrolled randomness, or other
+unconstrained environmental effects to alter the normative semantic result.
+
+The M-005 detector MUST therefore perform an actual dual evaluation of the
+same fixture rather than relying solely on a static expected-output assertion.
+
+The required baseline procedure is:
+
+1. evaluate the fixture once;
+2. evaluate the same fixture a second time;
+3. extract the four normative semantic fields;
+4. compare the two semantic results;
+5. require exact semantic equivalence.
+
+A baseline replay that diverges before mutation is a conformance defect and
+MUST NOT be hidden by the mutation test.
+
+---
+
+## 10.5 Controlled Mutation
+
+After establishing that the unmutated evaluator produces equivalent semantic
+results across the two evaluations, the M-005 detector SHALL introduce an
+isolated semantic mutation.
+
+The mutation MUST alter a normative semantic field while leaving the fixture,
+canonical evaluator, and unrelated metadata unchanged.
+
+A representative controlled mutation is to alter one replay result field, for
+example:
+
+`action = REQUIRES_HUMAN`
+
+to:
+
+`action = BLOCKED`
+
+or another deliberately selected semantic divergence justified by the
+applicable conformance invariant.
+
+The mutation MUST produce:
+
+`REPLAY_MISMATCH`
+
+when compared against the unmutated normative replay result.
+
+---
+
+## 10.6 Required Detection
+
+The M-005 detector MUST establish both of the following independently:
+
+1. **Baseline determinism:** the first and second evaluations of the identical
+   fixture are semantically equivalent;
+2. **Mutation sensitivity:** the deliberate semantic mutation is detected as a
+   replay divergence.
+
+The controlled mutation MUST NOT be accepted as equivalent merely because
+volatile metadata differs or because the detector compares only a subset of
+the normative semantic surface.
+
+Required successful mutation result:
+
+`REPLAY_MISMATCH`
+
+followed by:
 
 `MUTATION_KILLED`
 
-No M-005 implementation is implied by this specification section.
+A detector that reports `MUTATION_KILLED` without first proving baseline
+replay equivalence is insufficient.
+
+---
+
+## 10.7 Isolation Requirement
+
+M-005 MUST NOT modify:
+
+- canonical fixture expectations;
+- canonical evaluator semantics;
+- provenance binding semantics;
+- static JSON checksum semantics;
+- guard/reason taxonomy;
+- authorization semantics;
+- epistemic evaluation semantics.
+
+The mutation target is deterministic replay sensitivity only.
+
+M-005 MUST remain independent from M-004. A matching Git revision is not proof
+of deterministic evaluation, and deterministic evaluation is not proof of
+provenance binding.
+
+---
+
+## 10.8 CI Requirement
+
+The M-005 detector MUST be explicitly invoked by CI.
+
+The workflow MUST execute the detector in a manner that guarantees the actual
+replay procedure runs in the CI environment. Merely defining a helper function
+or test that is not invoked by CI does not constitute an M-005 witness.
+
+CI MUST preserve an auditable record showing:
+
+- baseline replay equivalence;
+- the deliberate semantic mutation;
+- `REPLAY_MISMATCH` detection; and
+- `MUTATION_KILLED: M-005`.
+
+---
+
+## 10.9 M-005 Epistemic Boundary
+
+A successful M-005 result establishes only that the tested evaluator produced
+repeatable semantic results for the exercised fixture and that the detector
+caught the specified replay mutation.
+
+It does NOT establish:
+
+- deterministic behavior for every possible fixture;
+- deterministic behavior across arbitrary software versions;
+- deterministic behavior across arbitrary operating systems or runners;
+- complete reproducible-build guarantees;
+- provenance integrity;
+- architecture-wide correctness.
+
+Therefore:
+
+> DETERMINISTIC REPLAY CONFORMANCE ≠ UNIVERSAL REPRODUCIBILITY PROOF
 
 ---
 
@@ -544,6 +719,10 @@ For M-004 specifically, provenance classification SHALL additionally use:
 `PROVENANCE_MISMATCH`
 
 `PROVENANCE_MISSING`
+
+For M-005 specifically, replay divergence SHALL use:
+
+`REPLAY_MISMATCH`
 
 ---
 
@@ -602,13 +781,17 @@ Status:
 
 Status:
 
-`SPECIFICATION DEFINED / IMPLEMENTATION PENDING`
+`KILLED`
+
+Witness:
+
+`Run #38 / c33375f`
 
 ### M-005
 
 Status:
 
-`FROZEN / PENDING SPECIFICATION AND IMPLEMENTATION`
+`SPECIFICATION LOCKED / IMPLEMENTATION PENDING`
 
 ---
 
