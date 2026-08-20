@@ -1,0 +1,16 @@
+{
+  "fixture_id": "alpha_omni_compound",
+  "attack_class": "COMPOUND",
+  "description": "False consensus, self-validation, authority-as-proof, and coherence inflation in one packet.",
+  "independence_status": "DERIVATIVE",
+  "authorization_status": "VALID",
+  "evidence_sufficient": false,
+  "coherence_score": 0.95,
+  "requested_epistemic_status": "VERIFIED",
+  "requested_action": "ALLOWED",
+  "expected": {
+    "epistemic_status": "UNVERIFIED",
+    "action": "BLOCKED",
+    "guard_codes": ["E001", "E002", "E003", "E004", "E005", "E006", "E008"]
+  }
+}
