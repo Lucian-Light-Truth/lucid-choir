@@ -11,6 +11,10 @@ M-003: audit-only reason codes MUST remain separate from terminal guard codes.
 A mutant that promotes E007 into guard_codes must be detected as
 MUTATION_KILLED.
 
+M-004: conformance execution MUST bind declared provenance to the actual Git
+revision. The implementation exposes the actual revision and distinguishes
+PROVENANCE_MATCH, PROVENANCE_MISMATCH, and PROVENANCE_MISSING.
+
 The canonical evaluator and fixtures are not modified by these tests.
 """
 
@@ -158,7 +162,31 @@ def test_m003_taxonomy_separation():
     print("INVARIANT=AUDIT_REASON_E007_NOT_IN_GUARD_CODES")
 
 
+def test_m004_provenance_match():
+    """M-004 implementation must bind a declared SHA to the actual Git SHA."""
+    from lfn_provenance import (
+        PROVENANCE_MATCH,
+        classify_provenance,
+        get_actual_git_revision,
+    )
+
+    actual_revision = get_actual_git_revision(ROOT)
+    declared_revision = actual_revision
+    state = classify_provenance(declared_revision, actual_revision)
+
+    assert state == PROVENANCE_MATCH, (
+        "M-004 provenance implementation failed the canonical match: "
+        f"expected {PROVENANCE_MATCH!r}, got {state!r}"
+    )
+
+    print("PROVENANCE_MATCH")
+    print(f"DECLARED_PROVENANCE={declared_revision}")
+    print(f"ACTUAL_PROVENANCE={actual_revision}")
+    print("M-004 IMPLEMENTATION=BASELINE_MATCH")
+
+
 if __name__ == "__main__":
     test_m001_mutation_is_killed()
     test_m002_authorization_is_not_proof()
     test_m003_taxonomy_separation()
+    test_m004_provenance_match()
