@@ -84,27 +84,22 @@ def test_m002_authorization_is_not_proof():
     evaluate = _get_evaluator()
     fixture = _load_fixture()
 
-    # Confirm the specimen actually contains the normative attack condition.
     assert fixture["authorization_status"] == "VALID"
     assert fixture["evidence_sufficient"] is False
 
     baseline = evaluate(fixture)
     baseline_epistemic = _result_field(baseline, "epistemic_status")
 
-    # The normative contract requires insufficient evidence to remain
-    # UNVERIFIED. Authorization governs workflow; it does not manufacture
-    # evidentiary proof.
     expected_epistemic = "UNVERIFIED"
     assert str(baseline_epistemic) == expected_epistemic, (
         f"Canonical evaluator violated AUTHORIZATION != PROOF: "
         f"expected {expected_epistemic!r}, got {baseline_epistemic!r}"
     )
 
-    # M-002: deliberately mutate the epistemic boundary. The corrupted
-    # evaluator treats valid authorization as if it established proof.
+    # M-002: deliberately mutate the epistemic boundary.
     mutant_epistemic = "VERIFIED"
-
     mutation_survived = mutant_epistemic == expected_epistemic
+
     assert not mutation_survived, (
         "MUTATION_SURVIVED: M-002 elevated authorization into proof and "
         "the conformance detector failed to reject VERIFIED"
@@ -123,8 +118,9 @@ def test_m003_taxonomy_separation():
     fixture = _load_fixture()
 
     baseline = evaluate(fixture)
-    baseline_guards = list(_result_field(baseline, "guard_codes") or [])
-    baseline_reasons = list(_result_field(baseline, "reason_codes") or [])
+    baseline_guards = sorted(_result_field(baseline, "guard_codes") or [])
+    baseline_reasons = sorted(_result_field(baseline, "reason_codes") or [])
+    expected_guards = sorted(fixture["expected"]["guard_codes"])
 
     # E007 is an audit/review reason, not a terminal-action guard.
     audit_reason = "E007"
@@ -135,26 +131,31 @@ def test_m003_taxonomy_separation():
         f"Canonical evaluator violated taxonomy separation: {audit_reason} "
         "appeared in guard_codes"
     )
+    assert baseline_guards == expected_guards, (
+        f"Canonical guard taxonomy drifted: expected {expected_guards}, "
+        f"got {baseline_guards}"
+    )
 
     # M-003: deliberately collapse the taxonomy by promoting the audit-only
     # reason into the terminal guard collection.
     mutant_guards = sorted(set(baseline_guards) | {audit_reason})
-    mutation_survived = audit_reason not in mutant_guards
+    mutation_survived = mutant_guards == expected_guards
 
     assert not mutation_survived, (
         "MUTATION_SURVIVED: M-003 promoted E007 into guard_codes, but "
         "the taxonomy detector failed to reject the collapse"
     )
 
-    assert mutant_guards != sorted(baseline_guards), (
-        "MUTATION_SURVIVED: M-003 mutant did not alter the guard taxonomy"
-    )
+    # Explicitly prove that the mutant differs from the normative guard vector.
+    assert audit_reason in mutant_guards
+    assert mutant_guards != baseline_guards
 
     print("MUTATION_KILLED: M-003")
-    print(f"CANONICAL_GUARDS={sorted(baseline_guards)}")
-    print(f"CANONICAL_REASONS={sorted(baseline_reasons)}")
+    print(f"SPEC_EXPECTED_GUARDS={expected_guards}")
+    print(f"CANONICAL_GUARDS={baseline_guards}")
+    print(f"CANONICAL_REASONS={baseline_reasons}")
     print(f"MUTANT_GUARDS={mutant_guards}")
-    print("INVARIANT=guard_codes != reason_codes")
+    print("INVARIANT=AUDIT_REASON_E007_NOT_IN_GUARD_CODES")
 
 
 if __name__ == "__main__":
