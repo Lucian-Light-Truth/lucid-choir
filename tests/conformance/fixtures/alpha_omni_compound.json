@@ -1,8 +1,10 @@
 {
   "fixture_id": "alpha_omni_compound",
   "attack_class": "COMPOUND",
+  "attacks": ["FALSE_CONSENSUS", "SELF_EXEMPTION", "AUTHORITY_AS_PROOF", "COHERENCE_INFLATION"],
   "description": "False consensus, self-validation, authority-as-proof, and coherence inflation in one packet.",
   "independence_status": "DERIVATIVE",
+  "self_generated_evidence": true,
   "authorization_status": "VALID",
   "evidence_sufficient": false,
   "coherence_score": 0.95,
